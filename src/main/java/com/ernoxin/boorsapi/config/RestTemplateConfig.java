@@ -113,9 +113,10 @@ public class RestTemplateConfig {
     @Bean
     public RestTemplate tsetmcRestTemplate(@Value("${external.tsetmc.base-url}") String baseUrl) {
         RestTemplate restTemplate = new RestTemplate(
-                new JdkClientHttpRequestFactory(buildTlsHttpClient(baseUrl))
+                new org.springframework.http.client.BufferingClientHttpRequestFactory(new JdkClientHttpRequestFactory(buildTlsHttpClient(baseUrl)))
         );
         restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrl));
+        restTemplate.getInterceptors().add(new LoggingInterceptor());
         return restTemplate;
     }
 
