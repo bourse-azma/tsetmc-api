@@ -4,11 +4,17 @@ import com.ernoxin.boorsapi.domain.TsetmcMarketModels;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class TsetmcMarketMapper {
+    private static final DateTimeFormatter CHART_EVENT_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss")
+            .withZone(ZoneOffset.UTC);
 
     public TsetmcMarketModels.MarketOverviewResult toMarketOverview(JsonNode root) {
         JsonNode marketOverview = root.path("marketOverview");
@@ -175,6 +181,21 @@ public class TsetmcMarketMapper {
             ));
         }
         return new TsetmcMarketModels.ClosingPriceDailyResult(dailyPrices);
+    }
+
+    public TsetmcMarketModels.ClosingPriceChartDataResult toClosingPriceChartData(JsonNode root) {
+        List<TsetmcMarketModels.ClosingPriceChartDataItem> chartData = new ArrayList<>();
+        for (JsonNode chartNode : root.path("closingPriceChartData")) {
+            chartData.add(new TsetmcMarketModels.ClosingPriceChartDataItem(
+                    chartEventDateOrNull(chartNode, "dEven"),
+                    doubleOrNull(chartNode, "pDrCotVal"),
+                    doubleOrNull(chartNode, "qTotTran5J"),
+                    doubleOrNull(chartNode, "priceFirst"),
+                    doubleOrNull(chartNode, "priceMin"),
+                    doubleOrNull(chartNode, "priceMax")
+            ));
+        }
+        return new TsetmcMarketModels.ClosingPriceChartDataResult(chartData);
     }
 
     public TsetmcMarketModels.InstrumentInfoResult toInstrumentInfo(JsonNode root) {
@@ -368,6 +389,23 @@ public class TsetmcMarketMapper {
             return null;
         }
         return fieldNode.asDouble();
+    }
+
+    private String chartEventDateOrNull(JsonNode node, String field) {
+        JsonNode fieldNode = node.get(field);
+        if (fieldNode == null || fieldNode.isNull()) {
+            return null;
+        }
+
+        long eventDate = fieldNode.asLong();
+        if (eventDate >= 10_000_000 && eventDate <= 99_999_999) {
+            int year = (int) (eventDate / 10_000);
+            int month = (int) ((eventDate % 10_000) / 100);
+            int day = (int) (eventDate % 100);
+            return LocalDate.of(year, month, day).atStartOfDay().format(CHART_EVENT_DATE_FORMATTER);
+        }
+
+        return CHART_EVENT_DATE_FORMATTER.format(Instant.ofEpochSecond(eventDate));
     }
 
     private Boolean booleanOrNull(JsonNode node, String field) {

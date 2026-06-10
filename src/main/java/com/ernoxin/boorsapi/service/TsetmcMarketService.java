@@ -44,6 +44,10 @@ public class TsetmcMarketService {
         return mapper.toClosingPriceDaily(client.getClosingPriceDaily(instrumentCode, days));
     }
 
+    public TsetmcMarketModels.ClosingPriceChartDataResult getClosingPriceChartData(String instrumentCode, String period) {
+        return mapper.toClosingPriceChartData(client.getClosingPriceChartData(instrumentCode, period));
+    }
+
     public TsetmcMarketModels.InstrumentInfoResult getInstrumentInfo(String instrumentCode) {
         return mapper.toInstrumentInfo(client.getInstrumentInfo(instrumentCode));
     }

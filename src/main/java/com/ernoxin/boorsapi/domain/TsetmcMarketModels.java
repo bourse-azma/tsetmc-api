@@ -153,6 +153,19 @@ public final class TsetmcMarketModels {
             Double tradeValue) {
     }
 
+    public record ClosingPriceChartDataResult(
+            List<ClosingPriceChartDataItem> chartData) {
+    }
+
+    public record ClosingPriceChartDataItem(
+            String eventDate,
+            Double lastTradePrice,
+            Double tradeVolume,
+            Double firstTradePrice,
+            Double dayMinPrice,
+            Double dayMaxPrice) {
+    }
+
     public record InstrumentInfoResult(
             String instrumentCode,
             String symbol,

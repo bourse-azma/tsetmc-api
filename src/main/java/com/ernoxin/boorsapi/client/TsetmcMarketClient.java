@@ -47,6 +47,10 @@ public class TsetmcMarketClient {
         return getJson("/ClosingPrice/GetClosingPriceDailyList/" + instrumentCode + "/" + days);
     }
 
+    public JsonNode getClosingPriceChartData(String instrumentCode, String period) {
+        return getJson("/ClosingPrice/GetChartData/" + instrumentCode + "/" + period);
+    }
+
     public JsonNode getInstrumentInfo(String instrumentCode) {
         return getJson("/Instrument/GetInstrumentInfo/" + instrumentCode);
     }

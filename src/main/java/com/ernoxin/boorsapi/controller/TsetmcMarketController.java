@@ -69,6 +69,13 @@ public class TsetmcMarketController {
         return ApiResponse.success(service.getClosingPriceDaily(instrumentCode, days));
     }
 
+    @GetMapping("/instruments/{instrumentCode}/closing-prices/chart/{period}")
+    public ApiResponse<TsetmcMarketModels.ClosingPriceChartDataResult> getClosingPriceChartData(
+            @PathVariable String instrumentCode,
+            @PathVariable String period) {
+        return ApiResponse.success(service.getClosingPriceChartData(instrumentCode, period));
+    }
+
     @GetMapping("/instruments/{instrumentCode}/info")
     public ApiResponse<TsetmcMarketModels.InstrumentInfoResult> getInstrumentInfo(
             @PathVariable String instrumentCode) {
