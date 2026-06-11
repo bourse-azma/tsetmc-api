@@ -80,6 +80,10 @@ public class TsetmcMarketService {
         return mapper.toMarketMessages(client.getMarketMessagesByInstrument(instrumentCode));
     }
 
+    public TsetmcMarketModels.EtfInfoResult getEtfInfo(String instrumentCode) {
+        return mapper.toEtfInfo(client.getEtfByInsCode(instrumentCode));
+    }
+
     public TsetmcMarketModels.CodalStatementContentResult getCodalStatementContentByInstrument(
             int reportType,
             int reportSubType,

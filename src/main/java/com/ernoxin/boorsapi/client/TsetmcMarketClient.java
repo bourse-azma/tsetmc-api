@@ -83,6 +83,10 @@ public class TsetmcMarketClient {
         return getJson("/Msg/GetMsgByInsCode/" + instrumentCode);
     }
 
+    public JsonNode getEtfByInsCode(String instrumentCode) {
+        return getJson("/Fund/GetETFByInsCode/" + instrumentCode);
+    }
+
     public JsonNode getCodalStatementContentByInstrument(int reportType, int reportSubType, int pageId, String instrumentCode) {
         return getJson("/Codal/GetStatementContentByInsCode/"
                 + reportType + "/"

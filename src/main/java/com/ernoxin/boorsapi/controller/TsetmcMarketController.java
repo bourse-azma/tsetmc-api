@@ -126,6 +126,12 @@ public class TsetmcMarketController {
         return ApiResponse.success(service.getTrades(instrumentCode));
     }
 
+    @GetMapping("/instruments/{instrumentCode}/etf-info")
+    public ApiResponse<TsetmcMarketModels.EtfInfoResult> getEtfInfo(
+            @PathVariable String instrumentCode) {
+        return ApiResponse.success(service.getEtfInfo(instrumentCode));
+    }
+
     @GetMapping("/codal/instruments/{instrumentCode}/statement-content/{reportType}/{reportSubType}/{pageId}")
     public ApiResponse<TsetmcMarketModels.CodalStatementContentResult> getCodalStatementContentByInstrument(
             @PathVariable String instrumentCode,

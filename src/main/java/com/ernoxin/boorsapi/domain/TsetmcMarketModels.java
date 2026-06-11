@@ -173,12 +173,20 @@ public final class TsetmcMarketModels {
             String isin,
             SectorInfo sector,
             StaticPriceThreshold staticPriceThreshold,
+            EpsInfo eps,
             Double baseVolume,
             Double totalShares,
             Integer marketFlowCode,
             String marketFlowTitle,
             String boardTitle,
             Integer instrumentId) {
+    }
+
+    public record EpsInfo(
+            Double epsValue,
+            Double estimatedEps,
+            Double sectorPe,
+            Double psr) {
     }
 
     public record SectorInfo(
@@ -291,5 +299,13 @@ public final class TsetmcMarketModels {
             Integer reportSubType,
             Integer pageId,
             String contentXml) {
+    }
+
+    public record EtfInfoResult(
+            String insCode,
+            String navAnnouncementAt,
+            Double cancelNav,
+            Double issueNav,
+            Integer iClose) {
     }
 }
