@@ -94,6 +94,7 @@ public final class TsetmcMarketModels {
             String instrumentCode,
             Integer eventDate,
             Integer eventTime,
+            String lastTradeAt,
             Double closingPrice,
             Double lastTradePrice,
             Double tradeCount,
