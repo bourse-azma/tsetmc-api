@@ -153,17 +153,18 @@ public class TsetmcMarketMapper {
 
     public TsetmcMarketModels.ClientTypeResult toClientType(JsonNode root) {
         JsonNode clientTypeNode = root.path("clientType");
+        // TSETMC: I = حقیقی (individual), N = حقوقی (non-individual / institutional)
         return new TsetmcMarketModels.ClientTypeResult(
-                doubleOrNull(clientTypeNode, "buy_I_Volume"),
                 doubleOrNull(clientTypeNode, "buy_N_Volume"),
+                doubleOrNull(clientTypeNode, "buy_I_Volume"),
                 doubleOrNull(clientTypeNode, "buy_DDD_Volume"),
-                intOrNull(clientTypeNode, "buy_CountI"),
                 intOrNull(clientTypeNode, "buy_CountN"),
+                intOrNull(clientTypeNode, "buy_CountI"),
                 intOrNull(clientTypeNode, "buy_CountDDD"),
-                doubleOrNull(clientTypeNode, "sell_I_Volume"),
                 doubleOrNull(clientTypeNode, "sell_N_Volume"),
-                intOrNull(clientTypeNode, "sell_CountI"),
-                intOrNull(clientTypeNode, "sell_CountN")
+                doubleOrNull(clientTypeNode, "sell_I_Volume"),
+                intOrNull(clientTypeNode, "sell_CountN"),
+                intOrNull(clientTypeNode, "sell_CountI")
         );
     }
 
