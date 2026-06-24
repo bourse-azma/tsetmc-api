@@ -51,6 +51,48 @@ public final class JalaliDateTimeFormatter {
         return j[0] * 10_000 + j[1] * 100 + j[2];
     }
 
+    /**
+     * TSETMC {@code GetChartData} may return {@code dEven} as Jalali yyyyMMdd (year 1200–1500).
+     * Normalize every compact date to Gregorian {@code dEven} before chart aggregation.
+     */
+    public static int normalizeCompactDateToGregorianDeven(int compact) {
+        int year = compact / 10_000;
+        if (year >= 1200 && year <= 1500) {
+            return jalaliDevenToGregorianDeven(compact);
+        }
+        return compact;
+    }
+
+    public static int jalaliDevenToGregorianDeven(int jalaliDeven) {
+        int jy = jalaliDeven / 10_000;
+        int jm = (jalaliDeven % 10_000) / 100;
+        int jd = jalaliDeven % 100;
+        int[] g = jalaliToGregorian(jy, jm, jd);
+        return g[0] * 10_000 + g[1] * 100 + g[2];
+    }
+
+    public static LocalDate parseNormalizedChartEventDate(String eventDate) {
+        if (eventDate == null || eventDate.isBlank()) {
+            return null;
+        }
+
+        String normalized = eventDate.trim();
+        if (normalized.length() >= 8 && Character.isDigit(normalized.charAt(0))) {
+            try {
+                int compact = Integer.parseInt(normalized.substring(0, 8));
+                compact = normalizeCompactDateToGregorianDeven(compact);
+                return LocalDate.parse(String.format("%08d", compact), DateTimeFormatter.BASIC_ISO_DATE);
+            } catch (DateTimeParseException | NumberFormatException ignored) {
+            }
+        }
+
+        try {
+            return LocalDate.parse(normalized, DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss"));
+        } catch (DateTimeParseException ignored) {
+            return null;
+        }
+    }
+
     public static LocalDate jalaliMonthStart(LocalDate gregorianDate) {
         int[] jalali = gregorianToJalali(
                 gregorianDate.getYear(),

@@ -52,17 +52,9 @@ public class TsetmcMarketFetchService {
         TsetmcMarketModels.ClosingPriceChartDataResult listDaily = mapper.dailyListToChartData(
                 client.getClosingPriceDaily(instrumentCode, 0)
         );
-        TsetmcMarketModels.ClosingPriceChartDataResult dailyChart = pickRicherDailySource(chartDaily, listDaily);
+        TsetmcMarketModels.ClosingPriceChartDataResult dailyChart =
+                chartAggregationService.mergeDailySources(chartDaily, listDaily);
         return chartAggregationService.aggregateForPeriod(dailyChart, period);
-    }
-
-    private TsetmcMarketModels.ClosingPriceChartDataResult pickRicherDailySource(
-            TsetmcMarketModels.ClosingPriceChartDataResult chartDaily,
-            TsetmcMarketModels.ClosingPriceChartDataResult listDaily
-    ) {
-        int chartCount = chartDaily.chartData() == null ? 0 : chartDaily.chartData().size();
-        int listCount = listDaily.chartData() == null ? 0 : listDaily.chartData().size();
-        return listCount > chartCount ? listDaily : chartDaily;
     }
 
     public TsetmcMarketModels.InstrumentInfoResult getInstrumentInfo(String instrumentCode) {

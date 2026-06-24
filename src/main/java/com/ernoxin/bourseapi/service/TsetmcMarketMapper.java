@@ -212,8 +212,9 @@ public class TsetmcMarketMapper {
             if (deven == null) {
                 continue;
             }
+            int gregorianDeven = JalaliDateTimeFormatter.normalizeCompactDateToGregorianDeven(deven);
             chartData.add(new TsetmcMarketModels.ClosingPriceChartDataItem(
-                    String.format("%08d 00:00:00", deven),
+                    String.format("%08d 00:00:00", gregorianDeven),
                     firstDoubleOrNull(dailyNode, "pDrCotVal", "pClosing"),
                     doubleOrNull(dailyNode, "qTotTran5J"),
                     doubleOrNull(dailyNode, "priceFirst"),
@@ -450,7 +451,8 @@ public class TsetmcMarketMapper {
 
         long eventDate = fieldNode.asLong();
         if (eventDate >= 10_000_000 && eventDate <= 99_999_999) {
-            return String.format("%08d 00:00:00", eventDate);
+            int gregorianDeven = JalaliDateTimeFormatter.normalizeCompactDateToGregorianDeven((int) eventDate);
+            return String.format("%08d 00:00:00", gregorianDeven);
         }
 
         return CHART_EVENT_DATE_FORMATTER.format(Instant.ofEpochSecond(eventDate));

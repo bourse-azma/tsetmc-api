@@ -6,14 +6,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
 public class ClosingPriceChartAggregationService {
 
     private static final String UPSTREAM_DAILY_PERIOD = "D";
-    private static final DateTimeFormatter CHART_EVENT_DATE = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
 
     public TsetmcMarketModels.ClosingPriceChartDataResult aggregateForPeriod(
             TsetmcMarketModels.ClosingPriceChartDataResult dailyResult,
@@ -37,6 +35,24 @@ public class ClosingPriceChartAggregationService {
 
     public String upstreamDailyPeriod() {
         return UPSTREAM_DAILY_PERIOD;
+    }
+
+    /**
+     * Unions chart and daily-list sources by trading day. Later items win on duplicate dates
+     * (daily list is appended last and usually has the fuller history).
+     */
+    public TsetmcMarketModels.ClosingPriceChartDataResult mergeDailySources(
+            TsetmcMarketModels.ClosingPriceChartDataResult chartDaily,
+            TsetmcMarketModels.ClosingPriceChartDataResult listDaily
+    ) {
+        List<TsetmcMarketModels.ClosingPriceChartDataItem> combined = new ArrayList<>();
+        if (chartDaily != null && chartDaily.chartData() != null) {
+            combined.addAll(chartDaily.chartData());
+        }
+        if (listDaily != null && listDaily.chartData() != null) {
+            combined.addAll(listDaily.chartData());
+        }
+        return new TsetmcMarketModels.ClosingPriceChartDataResult(deduplicateByDate(combined));
     }
 
     private ChartPeriod parsePeriod(String period) {
@@ -196,10 +212,12 @@ public class ClosingPriceChartAggregationService {
         double close = coalesce(last.lastTradePrice(), last.firstTradePrice());
         double high = sorted.stream()
                 .mapToDouble(item -> coalesce(item.item.dayMaxPrice(), item.item.lastTradePrice(), item.item.firstTradePrice()))
+                .filter(value -> value > 0)
                 .max()
                 .orElse(Math.max(open, close));
         double low = sorted.stream()
                 .mapToDouble(item -> coalesce(item.item.dayMinPrice(), item.item.lastTradePrice(), item.item.firstTradePrice()))
+                .filter(value -> value > 0)
                 .min()
                 .orElse(Math.min(open, close));
         double volume = sorted.stream()
@@ -230,23 +248,7 @@ public class ClosingPriceChartAggregationService {
     }
 
     private LocalDate parseChartDate(String eventDate) {
-        if (eventDate == null || eventDate.isBlank()) {
-            return null;
-        }
-
-        String normalized = eventDate.trim();
-        if (normalized.length() >= 8 && Character.isDigit(normalized.charAt(0))) {
-            try {
-                return LocalDate.parse(normalized.substring(0, 8), DateTimeFormatter.BASIC_ISO_DATE);
-            } catch (DateTimeParseException ignored) {
-            }
-        }
-
-        try {
-            return LocalDate.parse(normalized, CHART_EVENT_DATE);
-        } catch (DateTimeParseException ignored) {
-            return null;
-        }
+        return JalaliDateTimeFormatter.parseNormalizedChartEventDate(eventDate);
     }
 
     private String formatChartDate(LocalDate date) {
@@ -255,7 +257,7 @@ public class ClosingPriceChartAggregationService {
 
     private double coalesce(Double... values) {
         for (Double value : values) {
-            if (value != null && Double.isFinite(value)) {
+            if (value != null && Double.isFinite(value) && value > 0) {
                 return value;
             }
         }
