@@ -11,6 +11,7 @@ public class TsetmcMarketFetchService {
 
     private final TsetmcMarketClient client;
     private final TsetmcMarketMapper mapper;
+    private final ClosingPriceChartAggregationService chartAggregationService;
 
     public TsetmcMarketModels.MarketOverviewResult getMarketOverview(int marketId) {
         return mapper.toMarketOverview(client.getMarketOverview(marketId));
@@ -45,7 +46,23 @@ public class TsetmcMarketFetchService {
     }
 
     public TsetmcMarketModels.ClosingPriceChartDataResult getClosingPriceChartData(String instrumentCode, String period) {
-        return mapper.toClosingPriceChartData(client.getClosingPriceChartData(instrumentCode, period));
+        TsetmcMarketModels.ClosingPriceChartDataResult chartDaily = mapper.toClosingPriceChartData(
+                client.getClosingPriceChartData(instrumentCode, chartAggregationService.upstreamDailyPeriod())
+        );
+        TsetmcMarketModels.ClosingPriceChartDataResult listDaily = mapper.dailyListToChartData(
+                client.getClosingPriceDaily(instrumentCode, 0)
+        );
+        TsetmcMarketModels.ClosingPriceChartDataResult dailyChart = pickRicherDailySource(chartDaily, listDaily);
+        return chartAggregationService.aggregateForPeriod(dailyChart, period);
+    }
+
+    private TsetmcMarketModels.ClosingPriceChartDataResult pickRicherDailySource(
+            TsetmcMarketModels.ClosingPriceChartDataResult chartDaily,
+            TsetmcMarketModels.ClosingPriceChartDataResult listDaily
+    ) {
+        int chartCount = chartDaily.chartData() == null ? 0 : chartDaily.chartData().size();
+        int listCount = listDaily.chartData() == null ? 0 : listDaily.chartData().size();
+        return listCount > chartCount ? listDaily : chartDaily;
     }
 
     public TsetmcMarketModels.InstrumentInfoResult getInstrumentInfo(String instrumentCode) {

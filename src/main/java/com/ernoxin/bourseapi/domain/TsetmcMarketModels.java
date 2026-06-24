@@ -164,7 +164,9 @@ public final class TsetmcMarketModels {
             Double tradeVolume,
             Double firstTradePrice,
             Double dayMinPrice,
-            Double dayMaxPrice) {
+            Double dayMaxPrice,
+            String periodStartDate,
+            Boolean currentPeriod) {
     }
 
     public record InstrumentInfoResult(

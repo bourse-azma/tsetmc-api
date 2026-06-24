@@ -51,6 +51,31 @@ public final class JalaliDateTimeFormatter {
         return j[0] * 10_000 + j[1] * 100 + j[2];
     }
 
+    public static LocalDate jalaliMonthStart(LocalDate gregorianDate) {
+        int[] jalali = gregorianToJalali(
+                gregorianDate.getYear(),
+                gregorianDate.getMonthValue(),
+                gregorianDate.getDayOfMonth()
+        );
+        int[] gregorian = jalaliToGregorian(jalali[0], jalali[1], 1);
+        return LocalDate.of(gregorian[0], gregorian[1], gregorian[2]);
+    }
+
+    public static LocalDate jalaliYearStart(LocalDate gregorianDate) {
+        int[] jalali = gregorianToJalali(
+                gregorianDate.getYear(),
+                gregorianDate.getMonthValue(),
+                gregorianDate.getDayOfMonth()
+        );
+        int[] gregorian = jalaliToGregorian(jalali[0], 1, 1);
+        return LocalDate.of(gregorian[0], gregorian[1], gregorian[2]);
+    }
+
+    public static LocalDate rollingWeekStart(LocalDate date) {
+        long epochDay = date.toEpochDay();
+        return LocalDate.ofEpochDay((epochDay / 7) * 7);
+    }
+
     public static String normalizeDisplayDateTime(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
@@ -242,6 +267,17 @@ public final class JalaliDateTimeFormatter {
     private static int[] gregorianToJalali(int gy, int gm, int gd) {
         int jdn = g2d(gy, gm, gd);
         return d2j(jdn);
+    }
+
+    private static int[] jalaliToGregorian(int jy, int jm, int jd) {
+        int jdn = j2d(jy, jm, jd);
+        return d2g(jdn);
+    }
+
+    private static int j2d(int jy, int jm, int jd) {
+        int[] r = jalCal(jy);
+        int gy = jy + 621;
+        return g2d(gy, 3, r[1]) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
     }
 
     private static int g2d(int gy, int gm, int gd) {

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -194,11 +193,34 @@ public class TsetmcMarketMapper {
         for (JsonNode chartNode : root.path("closingPriceChartData")) {
             chartData.add(new TsetmcMarketModels.ClosingPriceChartDataItem(
                     chartEventDateOrNull(chartNode, "dEven"),
-                    doubleOrNull(chartNode, "pDrCotVal"),
+                    firstDoubleOrNull(chartNode, "pDrCotVal", "pClosing"),
                     doubleOrNull(chartNode, "qTotTran5J"),
                     doubleOrNull(chartNode, "priceFirst"),
                     doubleOrNull(chartNode, "priceMin"),
-                    doubleOrNull(chartNode, "priceMax")
+                    doubleOrNull(chartNode, "priceMax"),
+                    null,
+                    null
+            ));
+        }
+        return new TsetmcMarketModels.ClosingPriceChartDataResult(chartData);
+    }
+
+    public TsetmcMarketModels.ClosingPriceChartDataResult dailyListToChartData(JsonNode root) {
+        List<TsetmcMarketModels.ClosingPriceChartDataItem> chartData = new ArrayList<>();
+        for (JsonNode dailyNode : root.path("closingPriceDaily")) {
+            Integer deven = intOrNull(dailyNode, "dEven");
+            if (deven == null) {
+                continue;
+            }
+            chartData.add(new TsetmcMarketModels.ClosingPriceChartDataItem(
+                    String.format("%08d 00:00:00", deven),
+                    firstDoubleOrNull(dailyNode, "pDrCotVal", "pClosing"),
+                    doubleOrNull(dailyNode, "qTotTran5J"),
+                    doubleOrNull(dailyNode, "priceFirst"),
+                    doubleOrNull(dailyNode, "priceMin"),
+                    doubleOrNull(dailyNode, "priceMax"),
+                    null,
+                    null
             ));
         }
         return new TsetmcMarketModels.ClosingPriceChartDataResult(chartData);
@@ -410,6 +432,16 @@ public class TsetmcMarketMapper {
         return fieldNode.asDouble();
     }
 
+    private Double firstDoubleOrNull(JsonNode node, String... fields) {
+        for (String field : fields) {
+            Double value = doubleOrNull(node, field);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     private String chartEventDateOrNull(JsonNode node, String field) {
         JsonNode fieldNode = node.get(field);
         if (fieldNode == null || fieldNode.isNull()) {
@@ -418,10 +450,7 @@ public class TsetmcMarketMapper {
 
         long eventDate = fieldNode.asLong();
         if (eventDate >= 10_000_000 && eventDate <= 99_999_999) {
-            int year = (int) (eventDate / 10_000);
-            int month = (int) ((eventDate % 10_000) / 100);
-            int day = (int) (eventDate % 100);
-            return LocalDate.of(year, month, day).atStartOfDay().format(CHART_EVENT_DATE_FORMATTER);
+            return String.format("%08d 00:00:00", eventDate);
         }
 
         return CHART_EVENT_DATE_FORMATTER.format(Instant.ofEpochSecond(eventDate));
