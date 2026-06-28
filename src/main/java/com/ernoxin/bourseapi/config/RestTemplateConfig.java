@@ -27,7 +27,7 @@ import java.util.Base64;
 @Slf4j
 public class RestTemplateConfig {
 
-    private static HttpClient buildTlsHttpClient(String baseUrl) {
+    private static HttpClient buildTlsHttpClient(String baseUrl, long connectTimeoutMs) {
         try {
             URI uri = URI.create(baseUrl);
             String host = uri.getHost();
@@ -52,6 +52,7 @@ public class RestTemplateConfig {
 
             return HttpClient.newBuilder()
                     .sslContext(sslContext)
+                    .connectTimeout(java.time.Duration.ofMillis(connectTimeoutMs))
                     .build();
         } catch (Exception ex) {
             throw new IllegalStateException("Failed to build TLS client for TSETMC upstream", ex);
@@ -111,10 +112,19 @@ public class RestTemplateConfig {
     }
 
     @Bean
-    public RestTemplate tsetmcRestTemplate(@Value("${external.tsetmc.base-url}") String baseUrl) {
-        RestTemplate restTemplate = new RestTemplate(
-                new org.springframework.http.client.BufferingClientHttpRequestFactory(new JdkClientHttpRequestFactory(buildTlsHttpClient(baseUrl)))
-        );
+    public RestTemplate tsetmcRestTemplate(
+            @Value("${external.tsetmc.base-url}") String baseUrl,
+            @Value("${external.tsetmc.connect-timeout-ms:10000}") long connectTimeoutMs,
+            @Value("${external.tsetmc.read-timeout-ms:15000}") long readTimeoutMs) {
+
+        JdkClientHttpRequestFactory jdkFactory = new JdkClientHttpRequestFactory(buildTlsHttpClient(baseUrl, connectTimeoutMs));
+        jdkFactory.setReadTimeout(java.time.Duration.ofMillis(readTimeoutMs));
+
+        org.springframework.http.client.ClientHttpRequestFactory factory = log.isDebugEnabled()
+                ? new org.springframework.http.client.BufferingClientHttpRequestFactory(jdkFactory)
+                : jdkFactory;
+
+        RestTemplate restTemplate = new RestTemplate(factory);
         restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrl));
         restTemplate.getInterceptors().add(new LoggingInterceptor());
         return restTemplate;
