@@ -1,6 +1,7 @@
 package com.ernoxin.bourseapi.service;
 
 import com.ernoxin.bourseapi.domain.TsetmcMarketModels;
+import com.ernoxin.bourseapi.domain.TsetmcMarketReportModels;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -107,12 +108,12 @@ public class TsetmcMarketService {
             key = "T(com.ernoxin.bourseapi.cache.TsetmcCacheKeys).instrumentCodeAndLimit(#instrumentCode, #limit)",
             sync = true
     )
-    public TsetmcMarketModels.CodalNoticesResult getCodalByInstrument(String instrumentCode, int limit) {
+    public TsetmcMarketReportModels.CodalNoticesResult getCodalByInstrument(String instrumentCode, int limit) {
         return fetchService.getCodalByInstrument(instrumentCode, limit);
     }
 
     @Cacheable(cacheResolver = "tsetmcCacheResolver", key = "#limit", sync = true)
-    public TsetmcMarketModels.CodalNoticesResult getCodalLatest(int limit) {
+    public TsetmcMarketReportModels.CodalNoticesResult getCodalLatest(int limit) {
         return fetchService.getCodalLatest(limit);
     }
 
@@ -121,12 +122,12 @@ public class TsetmcMarketService {
             key = "T(com.ernoxin.bourseapi.cache.TsetmcCacheKeys).flowAndLimit(#flow, #limit)",
             sync = true
     )
-    public TsetmcMarketModels.MarketMessagesResult getMarketMessagesByFlow(int flow, int limit) {
+    public TsetmcMarketReportModels.MarketMessagesResult getMarketMessagesByFlow(int flow, int limit) {
         return fetchService.getMarketMessagesByFlow(flow, limit);
     }
 
     @Cacheable(cacheResolver = "tsetmcCacheResolver", key = "#limit", sync = true)
-    public TsetmcMarketModels.InstrumentStateTopResult getInstrumentStateTop(int limit) {
+    public TsetmcMarketReportModels.InstrumentStateTopResult getInstrumentStateTop(int limit) {
         return fetchService.getInstrumentStateTop(limit);
     }
 
@@ -135,7 +136,7 @@ public class TsetmcMarketService {
             key = "T(com.ernoxin.bourseapi.cache.TsetmcCacheKeys).instrumentCode(#instrumentCode)",
             sync = true
     )
-    public TsetmcMarketModels.TradesResult getTrades(String instrumentCode) {
+    public TsetmcMarketReportModels.TradesResult getTrades(String instrumentCode) {
         return fetchService.getTrades(instrumentCode);
     }
 
@@ -144,7 +145,7 @@ public class TsetmcMarketService {
             key = "T(com.ernoxin.bourseapi.cache.TsetmcCacheKeys).instrumentCode(#instrumentCode)",
             sync = true
     )
-    public TsetmcMarketModels.MarketMessagesResult getMarketMessagesByInstrument(String instrumentCode) {
+    public TsetmcMarketReportModels.MarketMessagesResult getMarketMessagesByInstrument(String instrumentCode) {
         return fetchService.getMarketMessagesByInstrument(instrumentCode);
     }
 
@@ -153,7 +154,7 @@ public class TsetmcMarketService {
             key = "T(com.ernoxin.bourseapi.cache.TsetmcCacheKeys).instrumentCode(#instrumentCode)",
             sync = true
     )
-    public TsetmcMarketModels.EtfInfoResult getEtfInfo(String instrumentCode) {
+    public TsetmcMarketReportModels.EtfInfoResult getEtfInfo(String instrumentCode) {
         return fetchService.getEtfInfo(instrumentCode);
     }
 
@@ -162,7 +163,7 @@ public class TsetmcMarketService {
             key = "T(com.ernoxin.bourseapi.cache.TsetmcCacheKeys).codalStatementContent(#reportType, #reportSubType, #pageId, #instrumentCode)",
             sync = true
     )
-    public TsetmcMarketModels.CodalStatementContentResult getCodalStatementContentByInstrument(
+    public TsetmcMarketReportModels.CodalStatementContentResult getCodalStatementContentByInstrument(
             int reportType,
             int reportSubType,
             int pageId,

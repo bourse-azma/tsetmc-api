@@ -2,6 +2,7 @@ package com.ernoxin.bourseapi.service;
 
 import com.ernoxin.bourseapi.client.TsetmcMarketClient;
 import com.ernoxin.bourseapi.domain.TsetmcMarketModels;
+import com.ernoxin.bourseapi.domain.TsetmcMarketReportModels;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -65,35 +66,35 @@ public class TsetmcMarketFetchService {
         return mapper.toRelatedCompanies(client.getRelatedCompanies(sectorCode));
     }
 
-    public TsetmcMarketModels.CodalNoticesResult getCodalByInstrument(String instrumentCode, int limit) {
+    public TsetmcMarketReportModels.CodalNoticesResult getCodalByInstrument(String instrumentCode, int limit) {
         return mapper.toCodalNotices(client.getCodalByInstrument(limit, instrumentCode));
     }
 
-    public TsetmcMarketModels.CodalNoticesResult getCodalLatest(int limit) {
+    public TsetmcMarketReportModels.CodalNoticesResult getCodalLatest(int limit) {
         return mapper.toCodalNotices(client.getCodalLatest(limit));
     }
 
-    public TsetmcMarketModels.MarketMessagesResult getMarketMessagesByFlow(int flow, int limit) {
+    public TsetmcMarketReportModels.MarketMessagesResult getMarketMessagesByFlow(int flow, int limit) {
         return mapper.toMarketMessages(client.getMarketMessagesByFlow(flow, limit));
     }
 
-    public TsetmcMarketModels.InstrumentStateTopResult getInstrumentStateTop(int limit) {
+    public TsetmcMarketReportModels.InstrumentStateTopResult getInstrumentStateTop(int limit) {
         return mapper.toInstrumentStateTop(client.getInstrumentStateTop(limit));
     }
 
-    public TsetmcMarketModels.TradesResult getTrades(String instrumentCode) {
+    public TsetmcMarketReportModels.TradesResult getTrades(String instrumentCode) {
         return mapper.toTrades(client.getTrades(instrumentCode));
     }
 
-    public TsetmcMarketModels.MarketMessagesResult getMarketMessagesByInstrument(String instrumentCode) {
+    public TsetmcMarketReportModels.MarketMessagesResult getMarketMessagesByInstrument(String instrumentCode) {
         return mapper.toMarketMessages(client.getMarketMessagesByInstrument(instrumentCode));
     }
 
-    public TsetmcMarketModels.EtfInfoResult getEtfInfo(String instrumentCode) {
+    public TsetmcMarketReportModels.EtfInfoResult getEtfInfo(String instrumentCode) {
         return mapper.toEtfInfo(client.getEtfByInsCode(instrumentCode));
     }
 
-    public TsetmcMarketModels.CodalStatementContentResult getCodalStatementContentByInstrument(
+    public TsetmcMarketReportModels.CodalStatementContentResult getCodalStatementContentByInstrument(
             int reportType,
             int reportSubType,
             int pageId,

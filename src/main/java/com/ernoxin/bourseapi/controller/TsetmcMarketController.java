@@ -2,6 +2,7 @@ package com.ernoxin.bourseapi.controller;
 
 import com.ernoxin.bourseapi.common.api.ApiResponse;
 import com.ernoxin.bourseapi.domain.TsetmcMarketModels;
+import com.ernoxin.bourseapi.domain.TsetmcMarketReportModels;
 import com.ernoxin.bourseapi.service.TsetmcMarketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,51 +90,51 @@ public class TsetmcMarketController {
     }
 
     @GetMapping({"/codal/instruments/{instrumentCode}/{limit}", "/codal/instruments/{instrumentCode}/notices/{limit}"})
-    public ApiResponse<TsetmcMarketModels.CodalNoticesResult> getCodalByInstrument(
+    public ApiResponse<TsetmcMarketReportModels.CodalNoticesResult> getCodalByInstrument(
             @PathVariable String instrumentCode,
             @PathVariable int limit) {
         return ApiResponse.success(service.getCodalByInstrument(instrumentCode, limit));
     }
 
     @GetMapping("/codal/latest-notices/{limit}")
-    public ApiResponse<TsetmcMarketModels.CodalNoticesResult> getCodalLatest(
+    public ApiResponse<TsetmcMarketReportModels.CodalNoticesResult> getCodalLatest(
             @PathVariable int limit) {
         return ApiResponse.success(service.getCodalLatest(limit));
     }
 
     @GetMapping({"/messages/{flow}/{limit}", "/messages/flow/{flow}/{limit}"})
-    public ApiResponse<TsetmcMarketModels.MarketMessagesResult> getMarketMessagesByFlow(
+    public ApiResponse<TsetmcMarketReportModels.MarketMessagesResult> getMarketMessagesByFlow(
             @PathVariable int flow,
             @PathVariable int limit) {
         return ApiResponse.success(service.getMarketMessagesByFlow(flow, limit));
     }
 
     @GetMapping("/instruments/{instrumentCode}/messages")
-    public ApiResponse<TsetmcMarketModels.MarketMessagesResult> getMarketMessagesByInstrument(
+    public ApiResponse<TsetmcMarketReportModels.MarketMessagesResult> getMarketMessagesByInstrument(
             @PathVariable String instrumentCode) {
         return ApiResponse.success(service.getMarketMessagesByInstrument(instrumentCode));
     }
 
     @GetMapping("/instrument-states/top-list/{limit}")
-    public ApiResponse<TsetmcMarketModels.InstrumentStateTopResult> getInstrumentStateTop(
+    public ApiResponse<TsetmcMarketReportModels.InstrumentStateTopResult> getInstrumentStateTop(
             @PathVariable int limit) {
         return ApiResponse.success(service.getInstrumentStateTop(limit));
     }
 
     @GetMapping("/instruments/{instrumentCode}/trades")
-    public ApiResponse<TsetmcMarketModels.TradesResult> getTrades(
+    public ApiResponse<TsetmcMarketReportModels.TradesResult> getTrades(
             @PathVariable String instrumentCode) {
         return ApiResponse.success(service.getTrades(instrumentCode));
     }
 
     @GetMapping("/instruments/{instrumentCode}/etf-info")
-    public ApiResponse<TsetmcMarketModels.EtfInfoResult> getEtfInfo(
+    public ApiResponse<TsetmcMarketReportModels.EtfInfoResult> getEtfInfo(
             @PathVariable String instrumentCode) {
         return ApiResponse.success(service.getEtfInfo(instrumentCode));
     }
 
     @GetMapping("/codal/instruments/{instrumentCode}/statement-content/{reportType}/{reportSubType}/{pageId}")
-    public ApiResponse<TsetmcMarketModels.CodalStatementContentResult> getCodalStatementContentByInstrument(
+    public ApiResponse<TsetmcMarketReportModels.CodalStatementContentResult> getCodalStatementContentByInstrument(
             @PathVariable String instrumentCode,
             @PathVariable int reportType,
             @PathVariable int reportSubType,
