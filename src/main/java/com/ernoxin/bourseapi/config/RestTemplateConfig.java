@@ -2,7 +2,6 @@ package com.ernoxin.bourseapi.config;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +32,7 @@ public class RestTemplateConfig {
             String host = uri.getHost();
             int port = uri.getPort() > 0 ? uri.getPort() : 443;
 
-            if (StringUtils.isEmpty(host)) {
+            if (host == null || host.isBlank()) {
                 throw new IllegalArgumentException("Invalid external.tsetmc.base-url: " + baseUrl);
             }
 
