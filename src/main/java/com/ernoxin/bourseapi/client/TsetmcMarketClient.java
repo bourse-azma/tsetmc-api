@@ -3,6 +3,7 @@ package com.ernoxin.bourseapi.client;
 import com.ernoxin.bourseapi.common.exception.UpstreamApiException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -14,6 +15,10 @@ import org.springframework.web.client.RestTemplate;
 public class TsetmcMarketClient {
 
     private final RestTemplate tsetmcRestTemplate;
+    @Value("${external.tsetmc.retry-attempts:2}")
+    private int retryAttempts;
+    @Value("${external.tsetmc.retry-delay-ms:500}")
+    private long retryDelayMs;
 
     public JsonNode getMarketOverview(int marketId) {
         return getJson("/MarketData/GetMarketOverview/" + marketId);
@@ -96,19 +101,41 @@ public class TsetmcMarketClient {
     }
 
     private JsonNode getJson(String path) {
+        return getJson(path, Math.max(0, retryAttempts));
+    }
+
+    private JsonNode getJson(String path, int retriesLeft) {
         try {
             return tsetmcRestTemplate.getForObject(path, JsonNode.class);
         } catch (RestClientResponseException ex) {
+            int statusCode = ex.getStatusCode().value();
+            if (retriesLeft > 0 && (statusCode == 429 || statusCode >= 500)) {
+                waitBeforeRetry();
+                return getJson(path, retriesLeft - 1);
+            }
             HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
             throw new UpstreamApiException(
                     "Upstream API returned status " + ex.getStatusCode().value() + ": " + ex.getStatusText(),
                     status != null ? status : HttpStatus.BAD_GATEWAY
             );
         } catch (RestClientException ex) {
+            if (retriesLeft > 0) {
+                waitBeforeRetry();
+                return getJson(path, retriesLeft - 1);
+            }
             throw new UpstreamApiException(
                     "Upstream API request failed: " + ex.getClass().getSimpleName() + " - " + ex.getMessage(),
                     HttpStatus.BAD_GATEWAY
             );
+        }
+    }
+
+    private void waitBeforeRetry() {
+        try {
+            Thread.sleep(Math.max(0, retryDelayMs));
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new UpstreamApiException("Upstream API retry was interrupted", HttpStatus.BAD_GATEWAY);
         }
     }
 }
